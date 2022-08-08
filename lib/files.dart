@@ -1,5 +1,4 @@
 import 'dart:developer' as dev;
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -15,8 +14,10 @@ import 'package:open_file/open_file.dart';
 enum FileMode {
   /// open camera
   camera,
+
   /// open gallery
   gallery,
+
   /// open file manager
   file
 }
@@ -156,66 +157,15 @@ class Files {
     return mimeType.toString();
   }
 
-  static setFileDataFromUpdate({required String? fileUrl}) {
-    if (!Files._isNullOREmpty(fileUrl)) {
-      Files.fileData.hasFile = true;
-      Files.fileData.fileName = Files.getFileName(fileUrl);
-      Files.fileData.path = fileUrl!;
-      Files.setFileData(isActionUpdate: true);
-    }
-  }
-
-  static setFileData({bool isActionUpdate = false}) {
-    if (Files.fileData.hasFile) {
-      Files.setDeletedFiles();
-      Files.fileDataList.clear();
-      if (!isActionUpdate) {
-        Files.fileDataList.add(FileData(
-            fileName: Files.fileData.fileName,
-            filePath: Files.fileData.filePath,
-            fileMimeType: Files.fileData.fileMimeType,
-            path: Files.fileData.path));
-      } else {
-        Files.fileDataList.add(FileData(
-            fileName: Files.fileData.fileName, path: Files.fileData.path));
-      }
-    } else {
-      Files.clearFileData();
-    }
-  }
-
-  static Future<FileData> clearFileData(
-      {bool deletedFileListClear = false}) async {
-    Files.setDeletedFiles(deletedFileListClear: deletedFileListClear);
-    Files.fileData.hasFile = false;
-    Files.fileData.fileName = "";
-    Files.fileData.filePath = "";
-    Files.fileData.fileMimeType = "";
-    Files.fileData.path = "";
-    Files.fileDataList.clear();
-    return Files.fileData;
-  }
-
-  static setDeletedFiles(
-      {List<FileData>? fileDataList, bool deletedFileListClear = false}) {
-    for (var obj in Files.fileDataList) {
-      if (!Files._isNullOREmpty(obj.fileName)) {
-        if (!Files._isNullOREmpty(obj.path) && Files.webFilePath(obj.path)) {
-          Files.deletedFileList.add(obj.fileName);
-        }
-      }
-    }
-    if (deletedFileListClear) {
-      Files.deletedFileList.clear();
-    }
-  }
-
-  static String getDeletedFiles() {
-    return jsonEncode(Files.deletedFileList);
-  }
-
-  static List<FileData> getFileDataList() {
-    return Files.fileDataList;
+  static deleteFile(
+      {required FileData fileData,
+      required Function(FileData fileData) onDeleted}) async {
+    fileData.hasFile = false;
+    fileData.fileName = "";
+    fileData.filePath = "";
+    fileData.fileMimeType = "";
+    fileData.path = "";
+    onDeleted(fileData);
   }
 
   static double kb(int size) {
@@ -230,92 +180,130 @@ class Files {
     openFile(context, Files.fileData.path);
   }
 
-  static deleteFile({required BuildContext context}) async {
-    await Files.clearFileData();
-  }
-
-  static fileSelectionWithFileData(
-      {required BuildContext context, required FileMode fileMode}) async {
+  static filePickerOptions(
+      {required BuildContext context,
+      required FileData fileData,
+      required FileMode fileMode,
+      bool crop = false,
+      required Function(FileData fileData) onSelected}) async {
     fileMode == FileMode.camera
-        ? await Files.cameraPicker(fileData: fileData)
+        ? await Files.cameraPicker(
+            fileData: fileData,
+            crop: crop,
+            onSelected: (fileData) {
+              onSelected(fileData);
+            })
         : fileMode == FileMode.gallery
-            ? await Files.imagePicker()
-            : await Files.filePicker();
+            ? await Files.imagePicker(
+                fileData: fileData,
+                crop: crop,
+                onSelected: (fileData) {
+                  onSelected(fileData);
+                })
+            : await Files.filePicker(
+                fileData: fileData,
+                onSelected: (fileData) {
+                  onSelected(fileData);
+                });
   }
 
-  static Future<FileData> cameraPicker({required FileData fileData, int maxFileSizeInMb = 10}) async {
+  static cameraPicker(
+      {required FileData fileData,
+      bool crop = false,
+      int maxFileSizeInMb = 10,
+      required Function(FileData fileData) onSelected}) async {
     XFile? image = await ImagePicker().pickImage(source: ImageSource.camera);
     if (image != null) {
-      CroppedFile? croppedImage = await Files.imageCrop(image.path);
-      if (croppedImage != null && !Files._isNullOREmpty(croppedImage.path)) {
-        if (Files.mb(File(croppedImage.path).readAsBytesSync().lengthInBytes) <=
+      String filePath = "";
+      if (crop) {
+        CroppedFile? croppedImage = await Files.imageCrop(image.path);
+        if (croppedImage != null) {
+          filePath = croppedImage.path;
+        }
+      } else {
+        filePath = image.path;
+      }
+      if (!Files._isNullOREmpty(filePath)) {
+        if (Files.mb(File(filePath).readAsBytesSync().lengthInBytes) <=
             maxFileSizeInMb) {
           fileData.hasFile = true;
-          fileData.fileName = Files.getFileName(croppedImage.path);
-          fileData.filePath = croppedImage.path;
-          fileData.fileMimeType = Files.getMimeType(croppedImage.path);
-          fileData.path = croppedImage.path;
+          fileData.fileName = Files.getFileName(filePath);
+          fileData.filePath = filePath;
+          fileData.fileMimeType = Files.getMimeType(filePath);
+          fileData.path = filePath;
 
-          Files.setFileData();
+          onSelected(fileData);
         } else {
           dev.log(Files._fileMoreThanMB(maxFileSizeInMb));
         }
       }
     }
-    return Files.fileData;
   }
 
-  static Future<FileData> imagePicker({int maxFileSizeInMb = 10}) async {
+  static imagePicker(
+      {required FileData fileData,
+      bool crop = false,
+      int maxFileSizeInMb = 10,
+      required Function(FileData fileData) onSelected}) async {
     XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
-      CroppedFile? croppedImage = await Files.imageCrop(image.path);
-      if (croppedImage != null && !Files._isNullOREmpty(croppedImage.path)) {
-        if (Files.mb(File(croppedImage.path).readAsBytesSync().lengthInBytes) <=
+      String filePath = "";
+      if (crop) {
+        CroppedFile? croppedImage = await Files.imageCrop(image.path);
+        if (croppedImage != null) {
+          filePath = croppedImage.path;
+        }
+      } else {
+        filePath = image.path;
+      }
+      if (!Files._isNullOREmpty(filePath)) {
+        if (Files.mb(File(filePath).readAsBytesSync().lengthInBytes) <=
             maxFileSizeInMb) {
-          Files.fileData.hasFile = true;
-          Files.fileData.fileName = Files.getFileName(croppedImage.path);
-          Files.fileData.filePath = croppedImage.path;
-          Files.fileData.fileMimeType = Files.getMimeType(croppedImage.path);
-          Files.fileData.path = croppedImage.path;
+          fileData.hasFile = true;
+          fileData.fileName = Files.getFileName(filePath);
+          fileData.filePath = filePath;
+          fileData.fileMimeType = Files.getMimeType(filePath);
+          fileData.path = filePath;
 
-          Files.setFileData();
+          onSelected(fileData);
         } else {
           dev.log(Files._fileMoreThanMB(maxFileSizeInMb));
         }
       }
     }
-    return Files.fileData;
   }
 
-  static Future<FileData> filePicker({int maxFileSizeInMb = 10}) async {
+  static filePicker(
+      {required FileData fileData,
+      int maxFileSizeInMb = 10,
+      List<String> allowedExtensions = const [
+        Files.pdf,
+        Files.doc,
+        Files.docx,
+        Files.xls,
+        Files.xlsx,
+        Files.ppt,
+        Files.pptx,
+        Files.png,
+        Files.jpg,
+        Files.jpeg
+      ],
+      required Function(FileData fileData) onSelected}) async {
     FilePickerResult? result = await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: [
-      Files.pdf,
-      Files.doc,
-      Files.docx,
-      Files.xls,
-      Files.xlsx,
-      Files.ppt,
-      Files.pptx,
-      Files.png,
-      Files.jpg,
-      Files.jpeg
-    ]);
+        .pickFiles(type: FileType.custom, allowedExtensions: allowedExtensions);
     if (result != null && result.files.single.path != null) {
       if (Files.mb(result.files.single.size) <= maxFileSizeInMb) {
-        Files.fileData.hasFile = true;
-        Files.fileData.fileName = result.files.single.name;
-        Files.fileData.filePath = result.files.single.path!;
-        Files.fileData.fileMimeType =
-            Files.getMimeType(result.files.single.path!);
-        Files.fileData.path = result.files.single.path!;
+        fileData.hasFile = true;
+        fileData.fileName = result.files.single.name;
+        fileData.filePath = result.files.single.path!;
+        fileData.fileMimeType = Files.getMimeType(result.files.single.path!);
+        fileData.path = result.files.single.path!;
 
-        Files.setFileData();
+        onSelected(fileData);
       } else {
         dev.log(Files._fileMoreThanMB(maxFileSizeInMb));
       }
     }
-    return Files.fileData;
   }
 
   static Future<CroppedFile?> imageCrop(String imagePath) async {

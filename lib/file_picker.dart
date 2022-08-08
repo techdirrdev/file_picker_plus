@@ -12,6 +12,7 @@ class FilePicker extends StatefulWidget {
   final bool document;
   final bool view;
   final bool delete;
+  final bool crop;
   final int maxFileSizeInMb;
   final Widget? child;
 
@@ -26,6 +27,7 @@ class FilePicker extends StatefulWidget {
       this.document = true,
       this.view = true,
       this.delete = true,
+      this.crop = true,
       this.maxFileSizeInMb = 10,
       this.child})
       : super(key: key);
@@ -91,12 +93,16 @@ class _FilePickerState extends State<FilePicker> {
                               visible: widget.camera,
                               child: GestureDetector(
                                 onTap: () async {
-                                  await Files.fileSelectionWithFileData(
+                                  await Files.filePickerOptions(
                                       context: context,
-                                      fileMode: FileMode.camera);
-                                  widget.onSelected(Files.fileData);
-                                  Navigator.pop(context);
-                                  setState(() {});
+                                      fileData: Files.fileData,
+                                      fileMode: FileMode.camera,
+                                      crop: widget.crop,
+                                      onSelected: (fileData) {
+                                        widget.onSelected(fileData);
+                                        Navigator.pop(context);
+                                        setState(() {});
+                                      });
                                 },
                                 child: Column(
                                   children: [
@@ -119,13 +125,16 @@ class _FilePickerState extends State<FilePicker> {
                                   (widget.delete && Files.fileData.hasFile),
                               child: GestureDetector(
                                 onTap: () async {
-                                  await Files.deleteFile(context: context);
-                                  widget.onSelected(Files.fileData);
-                                  if (widget.onDeleted != null) {
-                                    widget.onDeleted!();
-                                  }
-                                  Navigator.pop(context);
-                                  setState(() {});
+                                  await Files.deleteFile(
+                                      fileData: Files.fileData,
+                                      onDeleted: (fileData) {
+                                        widget.onSelected(fileData);
+                                        if (widget.onDeleted != null) {
+                                          widget.onDeleted!();
+                                        }
+                                        Navigator.pop(context);
+                                        setState(() {});
+                                      });
                                 },
                                 child: Column(
                                   children: [
@@ -142,12 +151,16 @@ class _FilePickerState extends State<FilePicker> {
                               visible: widget.gallery,
                               child: GestureDetector(
                                 onTap: () async {
-                                  await Files.fileSelectionWithFileData(
+                                  await Files.filePickerOptions(
                                       context: context,
-                                      fileMode: FileMode.gallery);
-                                  widget.onSelected(Files.fileData);
-                                  Navigator.pop(context);
-                                  setState(() {});
+                                      fileData: Files.fileData,
+                                      fileMode: FileMode.gallery,
+                                      crop: widget.crop,
+                                      onSelected: (fileData) {
+                                        widget.onSelected(fileData);
+                                        Navigator.pop(context);
+                                        setState(() {});
+                                      });
                                 },
                                 child: Column(
                                   children: [
@@ -170,12 +183,15 @@ class _FilePickerState extends State<FilePicker> {
                               visible: widget.document,
                               child: GestureDetector(
                                 onTap: () async {
-                                  await Files.fileSelectionWithFileData(
+                                  await Files.filePickerOptions(
                                       context: context,
-                                      fileMode: FileMode.file);
-                                  widget.onSelected(Files.fileData);
-                                  Navigator.pop(context);
-                                  setState(() {});
+                                      fileData: Files.fileData,
+                                      fileMode: FileMode.file,
+                                      onSelected: (fileData) {
+                                        widget.onSelected(fileData);
+                                        Navigator.pop(context);
+                                        setState(() {});
+                                      });
                                 },
                                 child: Column(
                                   children: [

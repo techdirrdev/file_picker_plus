@@ -1,5 +1,6 @@
 import 'package:file_picker_plus/file_data.dart';
 import 'package:file_picker_plus/file_picker.dart';
+import 'package:file_picker_plus/files.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,9 +26,20 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: FilePicker(context: context, fileData: _fileData, onSelected: (fileData) {
+          _fileData = fileData;
+          setState(() {});
           print(fileData.filePath);
         }),
+        /*body: ElevatedButton(onPressed: () {
+          _camera();
+        }, child: Text("Camera")),*/
       ),
     );
+  }
+
+  _camera() async {
+    await Files.cameraPicker(fileData: _fileData, crop: true, onSelected: (fileData) {
+      print(fileData.filePath);
+    });
   }
 }
