@@ -66,8 +66,6 @@ class Files {
     Files.jpeg
   ];
 
-  static FileData fileData = FileData();
-
   static bool _isNullOREmpty(String? str) {
     if (str == null || str.isEmpty) {
       return true;

@@ -71,7 +71,6 @@ class _FilePickerState extends State<FilePicker> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        Files.fileData = widget.fileData;
         showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -90,10 +89,10 @@ class _FilePickerState extends State<FilePicker> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Visibility(
-                              visible: (widget.view && Files.fileData.hasFile),
+                              visible: (widget.view && widget.fileData.hasFile),
                               child: GestureDetector(
                                 onTap: () {
-                                  Files.viewFile(fileData: Files.fileData);
+                                  Files.viewFile(fileData: widget.fileData);
                                 },
                                 child: Column(
                                   children: [
@@ -112,7 +111,7 @@ class _FilePickerState extends State<FilePicker> {
                                 onTap: () async {
                                   await Files.filePickerOptions(
                                       context: context,
-                                      fileData: Files.fileData,
+                                      fileData: widget.fileData,
                                       fileMode: FileMode.camera,
                                       crop: widget.crop,
                                       maxFileSizeInMB: widget.maxFileSizeInMb,
@@ -152,11 +151,11 @@ class _FilePickerState extends State<FilePicker> {
                           children: [
                             Visibility(
                               visible:
-                                  (widget.delete && Files.fileData.hasFile),
+                                  (widget.delete && widget.fileData.hasFile),
                               child: GestureDetector(
                                 onTap: () async {
                                   await Files.deleteFile(
-                                      fileData: Files.fileData,
+                                      fileData: widget.fileData,
                                       onDeleted: (fileData) {
                                         widget.onSelected(fileData);
                                         if (widget.onDeleted != null) {
@@ -183,7 +182,7 @@ class _FilePickerState extends State<FilePicker> {
                                 onTap: () async {
                                   await Files.filePickerOptions(
                                       context: context,
-                                      fileData: Files.fileData,
+                                      fileData: widget.fileData,
                                       fileMode: FileMode.gallery,
                                       crop: widget.crop,
                                       maxFileSizeInMB: widget.maxFileSizeInMb,
@@ -228,7 +227,7 @@ class _FilePickerState extends State<FilePicker> {
                                 onTap: () async {
                                   await Files.filePickerOptions(
                                       context: context,
-                                      fileData: Files.fileData,
+                                      fileData: widget.fileData,
                                       fileMode: FileMode.file,
                                       maxFileSizeInMB: widget.maxFileSizeInMb,
                                       allowedExtensions:
@@ -275,7 +274,7 @@ class _FilePickerState extends State<FilePicker> {
             padding: const EdgeInsets.all(10),
             color: Colors.grey,
             child: Center(
-                child: _assetImage(Files.fileData.hasFile
+                child: _assetImage(widget.fileData.hasFile
                     ? _imgAttachmentAttached
                     : _imgAttachment)),
           ),
