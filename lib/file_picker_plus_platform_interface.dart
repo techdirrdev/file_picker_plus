@@ -14,7 +14,7 @@ abstract class FilePickerPlusPlatform extends PlatformInterface {
   ///
   /// Defaults to [MethodChannelFilePickerPlus].
   static FilePickerPlusPlatform get instance => _instance;
-  
+
   /// Platform-specific implementations should set this with their own
   /// platform-specific class that extends [FilePickerPlusPlatform] when
   /// they register themselves.

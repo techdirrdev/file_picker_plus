@@ -1,4 +1,3 @@
-
 import 'file_picker_plus_platform_interface.dart';
 
 class FilePickerPlus {
