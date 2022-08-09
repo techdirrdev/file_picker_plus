@@ -2,18 +2,27 @@ import 'package:file_picker_plus/file_data.dart';
 import 'package:file_picker_plus/files.dart';
 import 'package:flutter/material.dart';
 
+/// pre-define file picker widget
 class FilePicker extends StatefulWidget {
   final BuildContext context;
   final FileData fileData;
-  final Function(FileData fileDate) onSelected;
-  final Function()? onDeleted;
+  final Function(FileData fileData) onSelected;
+  final Function(String message)? onCancel;
+  final Function(FileData fileData)? onDeleted;
   final bool camera;
   final bool gallery;
   final bool document;
   final bool view;
   final bool delete;
   final bool crop;
-  final int maxFileSizeInMb;
+  final int? maxFileSizeInMb;
+  final bool cropOnlySquare;
+  final String cropperToolbarTitle;
+  final Color cropperToolbarColor;
+  final Color cropperToolbarWidgetsColor;
+  final List<String> allowedExtensions;
+  final double? width;
+  final double? height;
   final Widget? child;
 
   const FilePicker(
@@ -21,6 +30,7 @@ class FilePicker extends StatefulWidget {
       required this.context,
       required this.fileData,
       required this.onSelected,
+      this.onCancel,
       this.onDeleted,
       this.camera = true,
       this.gallery = true,
@@ -28,7 +38,14 @@ class FilePicker extends StatefulWidget {
       this.view = true,
       this.delete = true,
       this.crop = true,
-      this.maxFileSizeInMb = 10,
+      this.maxFileSizeInMb,
+      this.cropOnlySquare = false,
+      this.cropperToolbarTitle = Files.cropperToolbarTitle,
+      this.cropperToolbarColor = Files.cropperToolbarColor,
+      this.cropperToolbarWidgetsColor = Files.cropperToolbarWidgetsColor,
+      this.allowedExtensions = Files.allowedAllExtensions,
+      this.width,
+      this.height,
       this.child})
       : super(key: key);
 
@@ -76,7 +93,7 @@ class _FilePickerState extends State<FilePicker> {
                               visible: (widget.view && Files.fileData.hasFile),
                               child: GestureDetector(
                                 onTap: () {
-                                  Files.viewFile(context: context);
+                                  Files.viewFile(fileData: Files.fileData);
                                 },
                                 child: Column(
                                   children: [
@@ -98,10 +115,23 @@ class _FilePickerState extends State<FilePicker> {
                                       fileData: Files.fileData,
                                       fileMode: FileMode.camera,
                                       crop: widget.crop,
+                                      maxFileSizeInMB: widget.maxFileSizeInMb,
+                                      cropOnlySquare: widget.cropOnlySquare,
+                                      cropperToolbarTitle:
+                                          widget.cropperToolbarTitle,
+                                      cropperToolbarColor:
+                                          widget.cropperToolbarColor,
+                                      cropperToolbarWidgetsColor:
+                                          widget.cropperToolbarWidgetsColor,
                                       onSelected: (fileData) {
                                         widget.onSelected(fileData);
                                         Navigator.pop(context);
                                         setState(() {});
+                                      },
+                                      onCancel: (message) {
+                                        if (widget.onCancel != null) {
+                                          widget.onCancel!(message);
+                                        }
                                       });
                                 },
                                 child: Column(
@@ -130,7 +160,7 @@ class _FilePickerState extends State<FilePicker> {
                                       onDeleted: (fileData) {
                                         widget.onSelected(fileData);
                                         if (widget.onDeleted != null) {
-                                          widget.onDeleted!();
+                                          widget.onDeleted!(fileData);
                                         }
                                         Navigator.pop(context);
                                         setState(() {});
@@ -156,10 +186,23 @@ class _FilePickerState extends State<FilePicker> {
                                       fileData: Files.fileData,
                                       fileMode: FileMode.gallery,
                                       crop: widget.crop,
+                                      maxFileSizeInMB: widget.maxFileSizeInMb,
+                                      cropOnlySquare: widget.cropOnlySquare,
+                                      cropperToolbarTitle:
+                                          widget.cropperToolbarTitle,
+                                      cropperToolbarColor:
+                                          widget.cropperToolbarColor,
+                                      cropperToolbarWidgetsColor:
+                                          widget.cropperToolbarWidgetsColor,
                                       onSelected: (fileData) {
                                         widget.onSelected(fileData);
                                         Navigator.pop(context);
                                         setState(() {});
+                                      },
+                                      onCancel: (message) {
+                                        if (widget.onCancel != null) {
+                                          widget.onCancel!(message);
+                                        }
                                       });
                                 },
                                 child: Column(
@@ -187,10 +230,18 @@ class _FilePickerState extends State<FilePicker> {
                                       context: context,
                                       fileData: Files.fileData,
                                       fileMode: FileMode.file,
+                                      maxFileSizeInMB: widget.maxFileSizeInMb,
+                                      allowedExtensions:
+                                          widget.allowedExtensions,
                                       onSelected: (fileData) {
                                         widget.onSelected(fileData);
                                         Navigator.pop(context);
                                         setState(() {});
+                                      },
+                                      onCancel: (message) {
+                                        if (widget.onCancel != null) {
+                                          widget.onCancel!(message);
+                                        }
                                       });
                                 },
                                 child: Column(
@@ -219,6 +270,8 @@ class _FilePickerState extends State<FilePicker> {
       },
       child: widget.child ??
           Container(
+            width: widget.width,
+            height: widget.height,
             padding: const EdgeInsets.all(10),
             color: Colors.grey,
             child: Center(

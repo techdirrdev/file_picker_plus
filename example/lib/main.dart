@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:file_picker_plus/file_data.dart';
 import 'package:file_picker_plus/file_picker.dart';
 import 'package:file_picker_plus/files.dart';
@@ -25,21 +27,28 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: FilePicker(context: context, fileData: _fileData, onSelected: (fileData) {
-          _fileData = fileData;
-          setState(() {});
-          print(fileData.filePath);
-        }),
-        /*body: ElevatedButton(onPressed: () {
-          _camera();
-        }, child: Text("Camera")),*/
+        body: SafeArea(
+          child: Column(
+            children: [
+              FilePicker(
+                  context: context,
+                  height: 100,
+                  fileData: _fileData,
+                  crop: true,
+                  maxFileSizeInMb: 10,
+                  allowedExtensions: Files.allowedAllExtensions,
+                  onSelected: (fileData) {
+                    _fileData = fileData;
+                    log(fileData.filePath);
+                    setState(() {});
+                  },
+                  onCancel: (message) {
+                    log(message);
+                  }),
+            ],
+          ),
+        ),
       ),
     );
-  }
-
-  _camera() async {
-    await Files.cameraPicker(fileData: _fileData, crop: true, onSelected: (fileData) {
-      print(fileData.filePath);
-    });
   }
 }

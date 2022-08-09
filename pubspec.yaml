@@ -1,5 +1,6 @@
 name: file_picker_plus
 description: Flutter plugin for selecting files from the Android and iOS file library, and taking new pictures with the camera.
+repository: https://github.com/techdirrdev/file_picker_plus.git
 version: 0.0.1
 
 environment:
@@ -13,8 +14,8 @@ dependencies:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
   date_time_pro: ^1.4.0
+  open_share_pro: ^1.2.0
   mime: ^1.0.2
-  open_file: ^3.2.1 # ANDROID, IOS
   image_picker: ^0.8.5+3
   file_picker: ^4.6.1
   image_cropper: ^2.0.3
