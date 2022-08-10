@@ -1,8 +1,6 @@
 import 'dart:developer' as dev;
 import 'dart:io';
-import 'dart:math';
 
-import 'package:date_time_pro/date_times.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_picker_plus/file_data.dart';
 import 'package:flutter/material.dart';
@@ -80,16 +78,6 @@ class Files {
     } else {
       return false;
     }
-  }
-
-  /// create file name
-  static String createFileName(String path) {
-    String fileName = "";
-    if (!Files._isNullOREmpty(path)) {
-      fileName =
-          "attachment_${DateTimes.getCurrentDateTime(format: DateTimes.fyyyyMMddHHmmss)}_${Random().nextInt(999)}${Files.getFileExtension(path)}";
-    }
-    return fileName;
   }
 
   /// get file name from file path or url
