@@ -166,6 +166,17 @@ class Files {
     return Files.kb(sizeInBytes) / 1024;
   }
 
+  /// selected file path or url to set FileData
+  static FileData setFileDataFromUpdate({required String? path}) {
+    FileData fileData = FileData();
+    if (!Files._isNullOREmpty(path)) {
+      fileData.hasFile = true;
+      fileData.fileName = Files.getFileName(path);
+      fileData.path = path!;
+    }
+    return fileData;
+  }
+
   /// function file view
   static viewFile(
       {required FileData fileData, Function(FileData fileData)? onView}) {
