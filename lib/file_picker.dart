@@ -9,6 +9,7 @@ class FilePicker extends StatefulWidget {
   final Function(FileData fileData) onSelected;
   final Function(String message)? onCancel;
   final Function(FileData fileData)? onDeleted;
+  final Function(FileData fileData)? onView;
   final bool camera;
   final bool gallery;
   final bool document;
@@ -32,6 +33,7 @@ class FilePicker extends StatefulWidget {
       required this.onSelected,
       this.onCancel,
       this.onDeleted,
+      this.onView,
       this.camera = true,
       this.gallery = true,
       this.document = true,
@@ -92,7 +94,11 @@ class _FilePickerState extends State<FilePicker> {
                               visible: (widget.view && widget.fileData.hasFile),
                               child: GestureDetector(
                                 onTap: () {
-                                  Files.viewFile(fileData: widget.fileData);
+                                  if (widget.onView != null) {
+                                    widget.onView!(widget.fileData);
+                                  } else {
+                                    Files.viewFile(fileData: widget.fileData);
+                                  }
                                 },
                                 child: Column(
                                   children: [
