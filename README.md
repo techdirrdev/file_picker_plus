@@ -109,6 +109,9 @@ FilePicker(
   allowedExtensions: Files.allowedAllExtensions,
   onSelected: (fileData) {
     _fileData = fileData;
+  },
+  onCancel: (message, messageCode) {
+    log("[$messageCode] $message");
   }
 )
 ```

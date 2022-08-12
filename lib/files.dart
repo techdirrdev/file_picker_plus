@@ -36,6 +36,8 @@ class Files {
 
   static String _fileMoreThanMB(int maxFileSizeInMb) =>
       "File more than $maxFileSizeInMb MB, Please select another file";
+  static const int _mcFPCForCancel = 1;
+  static const int _mcFPCForSize = 2;
 
   /// file extensions
   static const pdf = "pdf";
@@ -205,7 +207,7 @@ class Files {
       required FileData fileData,
       required FileMode fileMode,
       required Function(FileData fileData) onSelected,
-      Function(String message)? onCancel,
+      Function(String message, int messageCode)? onCancel,
       bool crop = false,
       int? maxFileSizeInMB,
       bool cropOnlySquare = false,
@@ -225,9 +227,9 @@ class Files {
             onSelected: (fileData) {
               onSelected(fileData);
             },
-            onCancel: (message) {
+            onCancel: (message, messageCode) {
               if (onCancel != null) {
-                onCancel(message);
+                onCancel(message, messageCode);
               }
             })
         : fileMode == FileMode.gallery
@@ -242,9 +244,9 @@ class Files {
                 onSelected: (fileData) {
                   onSelected(fileData);
                 },
-                onCancel: (message) {
+                onCancel: (message, messageCode) {
                   if (onCancel != null) {
-                    onCancel(message);
+                    onCancel(message, messageCode);
                   }
                 })
             : await Files.filePicker(
@@ -254,9 +256,9 @@ class Files {
                 onSelected: (fileData) {
                   onSelected(fileData);
                 },
-                onCancel: (message) {
+                onCancel: (message, messageCode) {
                   if (onCancel != null) {
-                    onCancel(message);
+                    onCancel(message, messageCode);
                   }
                 });
   }
@@ -264,14 +266,15 @@ class Files {
   /// function camera picker for take picture and save to temporary cache directory
   static cameraPicker(
       {required FileData fileData,
+      required Function(FileData fileData) onSelected,
+      Function(String message, int messageCode)? onCancel,
       bool crop = false,
       int? maxFileSizeInMb,
       bool cropOnlySquare = false,
       String cropperToolbarTitle = Files.cropperToolbarTitle,
       Color cropperToolbarColor = Files.cropperToolbarColor,
-      Color cropperToolbarWidgetsColor = Files.cropperToolbarWidgetsColor,
-      required Function(FileData fileData) onSelected,
-      Function(String message)? onCancel}) async {
+      Color cropperToolbarWidgetsColor =
+          Files.cropperToolbarWidgetsColor}) async {
     XFile? image = await ImagePicker().pickImage(source: ImageSource.camera);
     if (image != null) {
       String filePath = "";
@@ -292,29 +295,32 @@ class Files {
         if (maxFileSizeInMb != null &&
             Files.mb(File(filePath).readAsBytesSync().lengthInBytes) >
                 maxFileSizeInMb) {
-          dev.log(Files._fileMoreThanMB(maxFileSizeInMb));
+          dev.log(
+              "[${Files._mcFPCForSize}] ${Files._fileMoreThanMB(maxFileSizeInMb)}");
           if (onCancel != null) {
-            onCancel(Files._fileMoreThanMB(maxFileSizeInMb));
+            onCancel(
+                Files._fileMoreThanMB(maxFileSizeInMb), Files._mcFPCForSize);
           }
           return;
         }
-        fileData.hasFile = true;
-        fileData.fileName = Files.getFileName(filePath);
-        fileData.filePath = filePath;
-        fileData.fileMimeType = Files.getMimeType(filePath);
-        fileData.path = filePath;
+        FileData fileData = FileData(
+            hasFile: true,
+            fileName: Files.getFileName(filePath),
+            filePath: filePath,
+            fileMimeType: Files.getMimeType(filePath),
+            path: filePath);
         onSelected(fileData);
       } else {
-        dev.log(Files._filePickCancel);
+        dev.log("[${Files._mcFPCForCancel}] ${Files._filePickCancel}");
         if (onCancel != null) {
-          onCancel(Files._filePickCancel);
+          onCancel(Files._filePickCancel, Files._mcFPCForCancel);
         }
         return;
       }
     } else {
-      dev.log(Files._filePickCancel);
+      dev.log("[${Files._mcFPCForCancel}] ${Files._filePickCancel}");
       if (onCancel != null) {
-        onCancel(Files._filePickCancel);
+        onCancel(Files._filePickCancel, Files._mcFPCForCancel);
       }
       return;
     }
@@ -323,14 +329,15 @@ class Files {
   /// function image picker for pick image from gallery and save to temporary cache directory
   static imagePicker(
       {required FileData fileData,
+      required Function(FileData fileData) onSelected,
+      Function(String message, int messageCode)? onCancel,
       bool crop = false,
       int? maxFileSizeInMb,
       bool cropOnlySquare = false,
       String cropperToolbarTitle = Files.cropperToolbarTitle,
       Color cropperToolbarColor = Files.cropperToolbarColor,
-      Color cropperToolbarWidgetsColor = Files.cropperToolbarWidgetsColor,
-      required Function(FileData fileData) onSelected,
-      Function(String message)? onCancel}) async {
+      Color cropperToolbarWidgetsColor =
+          Files.cropperToolbarWidgetsColor}) async {
     XFile? image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image != null) {
       String filePath = "";
@@ -351,29 +358,32 @@ class Files {
         if (maxFileSizeInMb != null &&
             Files.mb(File(filePath).readAsBytesSync().lengthInBytes) >
                 maxFileSizeInMb) {
-          dev.log(Files._fileMoreThanMB(maxFileSizeInMb));
+          dev.log(
+              "[${Files._mcFPCForSize}] ${Files._fileMoreThanMB(maxFileSizeInMb)}");
           if (onCancel != null) {
-            onCancel(Files._fileMoreThanMB(maxFileSizeInMb));
+            onCancel(
+                Files._fileMoreThanMB(maxFileSizeInMb), Files._mcFPCForSize);
           }
           return;
         }
-        fileData.hasFile = true;
-        fileData.fileName = Files.getFileName(filePath);
-        fileData.filePath = filePath;
-        fileData.fileMimeType = Files.getMimeType(filePath);
-        fileData.path = filePath;
+        FileData fileData = FileData(
+            hasFile: true,
+            fileName: Files.getFileName(filePath),
+            filePath: filePath,
+            fileMimeType: Files.getMimeType(filePath),
+            path: filePath);
         onSelected(fileData);
       } else {
-        dev.log(Files._filePickCancel);
+        dev.log("[${Files._mcFPCForCancel}] ${Files._filePickCancel}");
         if (onCancel != null) {
-          onCancel(Files._filePickCancel);
+          onCancel(Files._filePickCancel, Files._mcFPCForCancel);
         }
         return;
       }
     } else {
-      dev.log(Files._filePickCancel);
+      dev.log("[${Files._mcFPCForCancel}] ${Files._filePickCancel}");
       if (onCancel != null) {
-        onCancel(Files._filePickCancel);
+        onCancel(Files._filePickCancel, Files._mcFPCForCancel);
       }
       return;
     }
@@ -382,6 +392,8 @@ class Files {
   /// function file picker for pick any file and save to temporary cache directory
   static filePicker(
       {required FileData fileData,
+      required Function(FileData fileData) onSelected,
+      Function(String message, int messageCode)? onCancel,
       int? maxFileSizeInMb,
       List<String> allowedExtensions = const [
         Files.pdf,
@@ -394,30 +406,30 @@ class Files {
         Files.png,
         Files.jpg,
         Files.jpeg
-      ],
-      required Function(FileData fileData) onSelected,
-      Function(String message)? onCancel}) async {
+      ]}) async {
     FilePickerResult? result = await FilePicker.platform
         .pickFiles(type: FileType.custom, allowedExtensions: allowedExtensions);
     if (result != null && result.files.single.path != null) {
       if (maxFileSizeInMb != null &&
           Files.mb(result.files.single.size) > maxFileSizeInMb) {
-        dev.log(Files._fileMoreThanMB(maxFileSizeInMb));
+        dev.log(
+            "[${Files._mcFPCForSize}] ${Files._fileMoreThanMB(maxFileSizeInMb)}");
         if (onCancel != null) {
-          onCancel(Files._fileMoreThanMB(maxFileSizeInMb));
+          onCancel(Files._fileMoreThanMB(maxFileSizeInMb), Files._mcFPCForSize);
         }
         return;
       }
-      fileData.hasFile = true;
-      fileData.fileName = result.files.single.name;
-      fileData.filePath = result.files.single.path!;
-      fileData.fileMimeType = Files.getMimeType(result.files.single.path!);
-      fileData.path = result.files.single.path!;
+      FileData fileData = FileData(
+          hasFile: true,
+          fileName: result.files.single.name,
+          filePath: result.files.single.path!,
+          fileMimeType: Files.getMimeType(result.files.single.path!),
+          path: result.files.single.path!);
       onSelected(fileData);
     } else {
-      dev.log(Files._filePickCancel);
+      dev.log("[${Files._mcFPCForCancel}] ${Files._filePickCancel}");
       if (onCancel != null) {
-        onCancel(Files._filePickCancel);
+        onCancel(Files._filePickCancel, Files._mcFPCForCancel);
       }
       return;
     }

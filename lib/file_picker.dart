@@ -7,7 +7,7 @@ class FilePicker extends StatefulWidget {
   final BuildContext context;
   final FileData fileData;
   final Function(FileData fileData) onSelected;
-  final Function(String message)? onCancel;
+  final Function(String message, int messageCode)? onCancel;
   final Function(FileData fileData)? onDeleted;
   final Function(FileData fileData)? onView;
   final bool camera;
@@ -73,6 +73,7 @@ class _FilePickerState extends State<FilePicker> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
+        FileData fileData = FileData.clone(widget.fileData);
         showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -91,13 +92,13 @@ class _FilePickerState extends State<FilePicker> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Visibility(
-                              visible: (widget.view && widget.fileData.hasFile),
+                              visible: (widget.view && fileData.hasFile),
                               child: GestureDetector(
                                 onTap: () {
                                   if (widget.onView != null) {
-                                    widget.onView!(widget.fileData);
+                                    widget.onView!(fileData);
                                   } else {
-                                    Files.viewFile(fileData: widget.fileData);
+                                    Files.viewFile(fileData: fileData);
                                   }
                                 },
                                 child: Column(
@@ -117,7 +118,7 @@ class _FilePickerState extends State<FilePicker> {
                                 onTap: () async {
                                   await Files.filePickerOptions(
                                       context: context,
-                                      fileData: widget.fileData,
+                                      fileData: fileData,
                                       fileMode: FileMode.camera,
                                       crop: widget.crop,
                                       maxFileSizeInMB: widget.maxFileSizeInMb,
@@ -133,9 +134,10 @@ class _FilePickerState extends State<FilePicker> {
                                         Navigator.pop(context);
                                         setState(() {});
                                       },
-                                      onCancel: (message) {
+                                      onCancel: (message, messageCode) {
                                         if (widget.onCancel != null) {
-                                          widget.onCancel!(message);
+                                          widget.onCancel!(
+                                              message, messageCode);
                                         }
                                       });
                                 },
@@ -156,12 +158,11 @@ class _FilePickerState extends State<FilePicker> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Visibility(
-                              visible:
-                                  (widget.delete && widget.fileData.hasFile),
+                              visible: (widget.delete && fileData.hasFile),
                               child: GestureDetector(
                                 onTap: () async {
                                   await Files.deleteFile(
-                                      fileData: widget.fileData,
+                                      fileData: fileData,
                                       onDeleted: (fileData) {
                                         widget.onSelected(fileData);
                                         if (widget.onDeleted != null) {
@@ -188,7 +189,7 @@ class _FilePickerState extends State<FilePicker> {
                                 onTap: () async {
                                   await Files.filePickerOptions(
                                       context: context,
-                                      fileData: widget.fileData,
+                                      fileData: fileData,
                                       fileMode: FileMode.gallery,
                                       crop: widget.crop,
                                       maxFileSizeInMB: widget.maxFileSizeInMb,
@@ -204,9 +205,10 @@ class _FilePickerState extends State<FilePicker> {
                                         Navigator.pop(context);
                                         setState(() {});
                                       },
-                                      onCancel: (message) {
+                                      onCancel: (message, messageCode) {
                                         if (widget.onCancel != null) {
-                                          widget.onCancel!(message);
+                                          widget.onCancel!(
+                                              message, messageCode);
                                         }
                                       });
                                 },
@@ -233,7 +235,7 @@ class _FilePickerState extends State<FilePicker> {
                                 onTap: () async {
                                   await Files.filePickerOptions(
                                       context: context,
-                                      fileData: widget.fileData,
+                                      fileData: fileData,
                                       fileMode: FileMode.file,
                                       maxFileSizeInMB: widget.maxFileSizeInMb,
                                       allowedExtensions:
@@ -243,9 +245,10 @@ class _FilePickerState extends State<FilePicker> {
                                         Navigator.pop(context);
                                         setState(() {});
                                       },
-                                      onCancel: (message) {
+                                      onCancel: (message, messageCode) {
                                         if (widget.onCancel != null) {
-                                          widget.onCancel!(message);
+                                          widget.onCancel!(
+                                              message, messageCode);
                                         }
                                       });
                                 },

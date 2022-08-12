@@ -42,8 +42,8 @@ class _MyAppState extends State<MyApp> {
                     log(fileData.filePath);
                     setState(() {});
                   },
-                  onCancel: (message) {
-                    log(message);
+                  onCancel: (message, messageCode) {
+                    log("[$messageCode] $message");
                   }),
             ],
           ),
