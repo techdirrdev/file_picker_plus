@@ -1,3 +1,7 @@
+## 1.4.0
+
+* Flutter plugin for selecting files from the Android and iOS file library, and taking new pictures with the camera.
+
 ## 1.3.0
 
 * Flutter plugin for selecting files from the Android and iOS file library, and taking new pictures with the camera.
