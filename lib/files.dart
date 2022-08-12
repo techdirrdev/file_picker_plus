@@ -174,6 +174,7 @@ class Files {
           onView(fileData);
         } else {
           if (Files.isHttpPath(fileData.path)) {
+            Open.browser(url: fileData.path);
           } else {
             Open.localFile(filePath: fileData.path);
           }
