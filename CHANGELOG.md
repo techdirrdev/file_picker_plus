@@ -1,3 +1,7 @@
+## 1.7.0
+
+* File selection with support Android 13.
+
 ## 1.6.0
 
 * File selection with support Android 13.
