@@ -30,6 +30,7 @@ For help getting started with Flutter, view the online
 - Please check if use cameraPicker [image_picker](https://pub.dev/packages/image_picker) with image crop functionality [image_cropper](https://pub.dev/packages/image_cropper).
 - Please check if use imagePicker [image_picker](https://pub.dev/packages/image_picker) with image crop functionality [image_cropper](https://pub.dev/packages/image_cropper).
 - Please check if use filePicker [file_picker](https://pub.dev/packages/file_picker).
+- Please check if use viewFile [open_filex](https://pub.dev/packages/open_filex) or [open_share_pro](https://pub.dev/packages/open_share_pro).
 
 
 ### Android
