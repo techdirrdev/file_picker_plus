@@ -28,6 +28,7 @@ class FilePicker extends StatefulWidget {
   final List<String> allowedExtensions;
   final double? width;
   final double? height;
+  final Widget? child;
 
   const FilePicker(
       {Key? key,
@@ -52,7 +53,8 @@ class FilePicker extends StatefulWidget {
       this.cropperToolbarWidgetsColor = Files.cropperToolbarWidgetsColor,
       this.allowedExtensions = Files.allowedAllExtensions,
       this.width,
-      this.height})
+      this.height,
+      this.child})
       : super(key: key);
 
   @override
@@ -309,16 +311,17 @@ class _FilePickerState extends State<FilePicker> {
               );
             });
       },
-      child: Container(
-        width: widget.width,
-        height: widget.height,
-        padding: const EdgeInsets.all(10),
-        color: Colors.grey,
-        child: Center(
-            child: _assetImage(widget.fileData.hasFile
-                ? _imgAttachmentAttached
-                : _imgAttachment)),
-      ),
+      child: widget.child ??
+          Container(
+            width: widget.width,
+            height: widget.height,
+            padding: const EdgeInsets.all(10),
+            color: Colors.grey,
+            child: Center(
+                child: _assetImage(widget.fileData.hasFile
+                    ? _imgAttachmentAttached
+                    : _imgAttachment)),
+          ),
     );
   }
 }
