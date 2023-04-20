@@ -1,3 +1,7 @@
+## 1.8.0
+
+* File selection with support Android 13.
+
 ## 1.7.0
 
 * Other Device option.
