@@ -16,8 +16,8 @@ dependencies:
   open_share_pro: ^1.4.0
   mime: ^1.0.4
   image_picker: ^0.8.7
-  file_picker: ^5.2.5
-  image_cropper: ^3.0.1
+  file_picker: ^5.2.10
+  image_cropper: ^3.0.2
 
 dev_dependencies:
   flutter_test:

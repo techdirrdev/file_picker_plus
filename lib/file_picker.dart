@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:file_picker_plus/file_data.dart';
 import 'package:file_picker_plus/files.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +12,11 @@ class FilePicker extends StatefulWidget {
   final Function(String message, int messageCode)? onCancel;
   final Function(FileData fileData)? onDeleted;
   final Function(FileData fileData)? onView;
+  final Function(FileData fileData)? onOtherDeviceSelected;
   final bool camera;
   final bool gallery;
   final bool document;
+  final bool otherDevice;
   final bool view;
   final bool delete;
   final bool crop;
@@ -24,7 +28,6 @@ class FilePicker extends StatefulWidget {
   final List<String> allowedExtensions;
   final double? width;
   final double? height;
-  final Widget? child;
 
   const FilePicker(
       {Key? key,
@@ -34,9 +37,11 @@ class FilePicker extends StatefulWidget {
       this.onCancel,
       this.onDeleted,
       this.onView,
+      this.onOtherDeviceSelected,
       this.camera = true,
       this.gallery = true,
       this.document = true,
+      this.otherDevice = false,
       this.view = true,
       this.delete = true,
       this.crop = true,
@@ -47,8 +52,7 @@ class FilePicker extends StatefulWidget {
       this.cropperToolbarWidgetsColor = Files.cropperToolbarWidgetsColor,
       this.allowedExtensions = Files.allowedAllExtensions,
       this.width,
-      this.height,
-      this.child})
+      this.height})
       : super(key: key);
 
   @override
@@ -56,6 +60,9 @@ class FilePicker extends StatefulWidget {
 }
 
 class _FilePickerState extends State<FilePicker> {
+  final double _vert = 30;
+  final double _imageSize = 40;
+  final double _gap = 10;
   final String _imgAttachment = "assets/images/img_attachment.png";
   final String _imgAttachmentAttached =
       "assets/images/img_attachment_attached.png";
@@ -68,6 +75,7 @@ class _FilePickerState extends State<FilePicker> {
   final String _imgFileSelectionDelete =
       "assets/images/img_selection_delete.png";
   final String _imgFileSelectionView = "assets/images/img_selection_view.png";
+  final String _imgFileSelectionMC = "assets/images/img_selection_mc.png";
 
   @override
   Widget build(BuildContext context) {
@@ -104,14 +112,14 @@ class _FilePickerState extends State<FilePicker> {
                                 child: Column(
                                   children: [
                                     _assetImage(_imgFileSelectionView,
-                                        width: 40, height: 40),
-                                    const SizedBox(height: 10),
+                                        width: _imageSize, height: _imageSize),
+                                    SizedBox(height: _gap),
                                     const Text("View")
                                   ],
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 30),
+                            SizedBox(height: _vert),
                             Visibility(
                               visible: widget.camera,
                               child: GestureDetector(
@@ -144,8 +152,8 @@ class _FilePickerState extends State<FilePicker> {
                                 child: Column(
                                   children: [
                                     _assetImage(_imgFileSelectionCamera,
-                                        width: 40, height: 40),
-                                    const SizedBox(height: 10),
+                                        width: _imageSize, height: _imageSize),
+                                    SizedBox(height: _gap),
                                     const Text("Camera")
                                   ],
                                 ),
@@ -175,14 +183,14 @@ class _FilePickerState extends State<FilePicker> {
                                 child: Column(
                                   children: [
                                     _assetImage(_imgFileSelectionDelete,
-                                        width: 40, height: 40),
-                                    const SizedBox(height: 10),
+                                        width: _imageSize, height: _imageSize),
+                                    SizedBox(height: _gap),
                                     const Text("Delete")
                                   ],
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 30),
+                            SizedBox(height: _vert),
                             Visibility(
                               visible: widget.gallery,
                               child: GestureDetector(
@@ -215,8 +223,8 @@ class _FilePickerState extends State<FilePicker> {
                                 child: Column(
                                   children: [
                                     _assetImage(_imgFileSelectionGallery,
-                                        width: 40, height: 40),
-                                    const SizedBox(height: 10),
+                                        width: _imageSize, height: _imageSize),
+                                    SizedBox(height: _gap),
                                     const Text("Gallery")
                                   ],
                                 ),
@@ -228,7 +236,29 @@ class _FilePickerState extends State<FilePicker> {
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const SizedBox(height: 30),
+                            SizedBox(height: _vert),
+                            Visibility(
+                              visible: widget.otherDevice,
+                              child: GestureDetector(
+                                onTap: () {
+                                  log("onOtherDeviceSelected");
+                                  if (widget.onOtherDeviceSelected != null) {
+                                    widget.onOtherDeviceSelected!(
+                                        widget.fileData);
+                                  }
+                                  Navigator.pop(context);
+                                },
+                                child: Column(
+                                  children: [
+                                    _assetImage(_imgFileSelectionMC,
+                                        width: _imageSize, height: _imageSize),
+                                    SizedBox(height: _gap),
+                                    const Text("Other Device")
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: _vert),
                             Visibility(
                               visible: widget.document,
                               child: GestureDetector(
@@ -255,8 +285,8 @@ class _FilePickerState extends State<FilePicker> {
                                 child: Column(
                                   children: [
                                     _assetImage(_imgFileSelectionDocument,
-                                        width: 40, height: 40),
-                                    const SizedBox(height: 10),
+                                        width: _imageSize, height: _imageSize),
+                                    SizedBox(height: _gap),
                                     const Text("File")
                                   ],
                                 ),
@@ -266,27 +296,29 @@ class _FilePickerState extends State<FilePicker> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 30),
-                    Text(
-                      "* File must be less than ${widget.maxFileSizeInMb} MB",
-                      style: const TextStyle(fontSize: 10, color: Colors.red),
+                    SizedBox(height: _vert),
+                    Visibility(
+                      visible: (widget.maxFileSizeInMb != null),
+                      child: Text(
+                        "* File must be less than ${widget.maxFileSizeInMb} MB",
+                        style: const TextStyle(fontSize: 10, color: Colors.red),
+                      ),
                     )
                   ],
                 ),
               );
             });
       },
-      child: widget.child ??
-          Container(
-            width: widget.width,
-            height: widget.height,
-            padding: const EdgeInsets.all(10),
-            color: Colors.grey,
-            child: Center(
-                child: _assetImage(widget.fileData.hasFile
-                    ? _imgAttachmentAttached
-                    : _imgAttachment)),
-          ),
+      child: Container(
+        width: widget.width,
+        height: widget.height,
+        padding: const EdgeInsets.all(10),
+        color: Colors.grey,
+        child: Center(
+            child: _assetImage(widget.fileData.hasFile
+                ? _imgAttachmentAttached
+                : _imgAttachment)),
+      ),
     );
   }
 }
